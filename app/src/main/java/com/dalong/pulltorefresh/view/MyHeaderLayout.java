@@ -24,6 +24,7 @@ public class MyHeaderLayout extends LoadingLayoutBase {
     private  TextView ring_refresh_status;
     private  RingProgressBar progress_bar;
     private  LinearLayout header_base;
+    private LinearLayout header_layout;
 
     public MyHeaderLayout(Context context) {
         this(context, PullToRefreshBase.Mode.PULL_FROM_START);
@@ -38,6 +39,7 @@ public class MyHeaderLayout extends LoadingLayoutBase {
         this.mContext=mContext;
         LayoutInflater.from(mContext).inflate(R.layout.my_refresh_header, this);
         header_base=(LinearLayout)findViewById(R.id.header_base);
+        header_layout=(LinearLayout)findViewById(R.id.header_layout);
         progress_bar=(RingProgressBar)findViewById(R.id.progress_bar);
         ring_refresh_status=(TextView)findViewById(R.id.ring_refresh_status);
         refreshingAnimation = (RotateAnimation) AnimationUtils.loadAnimation(mContext, R.anim.rotating);
@@ -52,7 +54,7 @@ public class MyHeaderLayout extends LoadingLayoutBase {
 
     @Override
     public int getContentSize() {
-        return header_base.getHeight();
+        return header_layout.getHeight();
     }
 
     /**
