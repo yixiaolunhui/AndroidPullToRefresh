@@ -6,7 +6,11 @@
 2、自定义头部和底部更加的方便。
 
 #效果
+手动加载
 ![image](https://github.com/dalong982242260/AndroidPullToRefresh/blob/master/gif/androidrefresh.gif?raw=true)
+
+自动加载
+![image](https://github.com/dalong982242260/AndroidPullToRefresh/blob/master/gif/androidrefresh2.gif?raw=true)
 
 #感谢
 
