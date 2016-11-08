@@ -29,18 +29,37 @@ public class PullToRefreshRecyclerView extends PullToRefreshBase<RecyclerView> {
 
     public PullToRefreshRecyclerView(Context context) {
         super(context);
+        init();
     }
-
     public PullToRefreshRecyclerView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public PullToRefreshRecyclerView(Context context, Mode mode) {
         super(context, mode);
+        init();
     }
 
     public PullToRefreshRecyclerView(Context context, Mode mode, AnimationStyle style) {
         super(context, mode, style);
+        init();
+    }
+
+    private void init() {
+        mRefreshableView.setOnScrollListener(new OnRecyclerViewScrollListener(){
+            @Override
+            public void onLastItemVisible() {
+                super.onLastItemVisible();
+                if(mOnLastItemVisibleListener!=null)mOnLastItemVisibleListener.onLastItemVisible();
+            }
+        });
+    }
+
+
+    OnLastItemVisibleListener  mOnLastItemVisibleListener;
+    public final void setOnLastItemVisibleListener(OnLastItemVisibleListener listener) {
+        mOnLastItemVisibleListener = listener;
     }
 
     @Override

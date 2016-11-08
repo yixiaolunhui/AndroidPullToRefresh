@@ -1,12 +1,17 @@
 package com.dalong.pulltorefresh;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.dalong.pulltorefresh.view.MyFooterLayout;
@@ -15,6 +20,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshRecyclerView;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
+import com.zhy.adapter.recyclerview.wrapper.LoadMoreWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private PullToRefreshRecyclerView mPullRefreshRecyclerView;
     private RecyclerView mRecyclerView;
     private List<String> mDatas=new ArrayList<>();
+    private  int num;
     private String[] images=new String[]{
             "http://pic2.58.com/zp_images/allimg/131225/21_131225140438_1.jpg",
             "http://pic1.shejiben.com/case/2015/07/22/20150722123623-d4a14a28.jpg",
@@ -40,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
             "http://news.homekoo.com/imgdata/htmlimg/20120911/093419.jpg"
     };
     private CommonAdapter<String> adapter;
+    private LoadMoreWrapper mLoadMoreWrapper;
+    private TextView bottom_tv;
+    private ProgressBar progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         mPullRefreshRecyclerView.setHeaderLayout(new MyHeaderLayout(this));
         mPullRefreshRecyclerView.setFooterLayout(new MyFooterLayout(this));
         mRecyclerView=mPullRefreshRecyclerView.getRefreshableView();
+
+        mPullRefreshRecyclerView.setMode(PullToRefreshBase.Mode.PULL_FROM_START);
         LinearLayoutManager mLinearLayoutManager=new LinearLayoutManager(this);
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -65,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
                         .into(myImageView);
             }
         };
-        mRecyclerView.setAdapter(adapter);
         mPullRefreshRecyclerView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<RecyclerView>() {
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<RecyclerView> refreshView) {
@@ -79,6 +90,26 @@ public class MainActivity extends AppCompatActivity {
                 mHandler.sendEmptyMessageDelayed(1,3000);
             }
         });
+
+        mLoadMoreWrapper = new LoadMoreWrapper(adapter);
+        View view= LayoutInflater.from(this).inflate(R.layout.default_loading,null);
+        ViewGroup.LayoutParams params=new ViewGroup.LayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        view.setLayoutParams(params);
+        bottom_tv= (TextView) view.findViewById(R.id.bottom_tv);
+        progress= (ProgressBar) view.findViewById(R.id.progress);
+        mLoadMoreWrapper.setLoadMoreView(view);
+        mLoadMoreWrapper.setOnLoadMoreListener(new LoadMoreWrapper.OnLoadMoreListener()
+        {
+            @Override
+            public void onLoadMoreRequested()
+            {
+                isShowLoadingView();
+                mHandler.removeMessages(1);
+                mHandler.sendEmptyMessageDelayed(1,3000);
+            }
+        });
+
+        mRecyclerView.setAdapter(mLoadMoreWrapper);
     }
 
     Handler mHandler= new Handler(){
@@ -87,14 +118,17 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
             switch (msg.what){
                 case 0:
+                    num=0;
                     mDatas.clear();
                     getDatas();
-                    adapter.notifyDataSetChanged();
+                    mLoadMoreWrapper.notifyDataSetChanged();
                     mPullRefreshRecyclerView.onRefreshComplete();
                     break;
                 case 1:
+                    num++;
+                    isShowLoadingView();
                     getDatas();
-                    adapter.notifyDataSetChanged();
+                    mLoadMoreWrapper.notifyDataSetChanged();
                     mPullRefreshRecyclerView.onRefreshComplete();
                     break;
             }
@@ -103,6 +137,25 @@ public class MainActivity extends AppCompatActivity {
     public void  getDatas(){
         for (int i=0;i<images.length;i++){
             mDatas.add(images[i]);
+        }
+    }
+
+
+    public void isShowLoadingView(){
+        if(num>=3){
+            changeBottomView(false);
+            return;
+        }else{
+            changeBottomView(true);
+        }
+    }
+    public void changeBottomView(boolean isloading){
+        if(isloading){
+            bottom_tv.setText("加载中");
+            progress.setVisibility(View.VISIBLE);
+        }else{
+            bottom_tv.setText("加载完毕了");
+            progress.setVisibility(View.GONE);
         }
     }
 }

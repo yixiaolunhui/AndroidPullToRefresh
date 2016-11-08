@@ -32,7 +32,6 @@ import android.widget.ListView;
 import com.handmark.pulltorefresh.library.internal.EmptyViewMethodAccessor;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView> {
 
